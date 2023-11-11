@@ -10,7 +10,7 @@ calculator_name = 'SafeWalk'
 start_address = '405 Selfridge StBethlehem, PA 18015'
 end_address = '201 E Packer Ave, Bethlehem, PA 18015'
 
-# Function to geocode an address
+# Function to geocode an address and return latitude and longitude separately
 def geocode_address(client, place_index, address):
     response = client.search_place_index_for_text(IndexName=place_index, Text=address)
     result = response['Results'][0]
@@ -22,7 +22,6 @@ def geocode_address(client, place_index, address):
 start_latitude, start_longitude = geocode_address(client, place_index, start_address)
 end_latitude, end_longitude = geocode_address(client, place_index, end_address)
 
-
 # Make the API call to calculate the route
 route_response = client.calculate_route(
     CalculatorName=calculator_name,
@@ -30,22 +29,27 @@ route_response = client.calculate_route(
     DestinationPosition=[end_longitude, end_latitude],
     TravelMode='Walking'  
 )
+print("Start Latitude:", start_latitude)
+print("Start Longitude:", start_longitude)
+print("End Latitude:", end_latitude)
+print("End Longitude:", end_longitude)
 
-# Debugging: Print the raw route response
-print("Raw Route Response:")
-print(route_response)
-
-# Function to print a detailed description of the route
+# Function to print a detailed description of the route in feet
+# Function to print a detailed description of the route in feet with swapped coordinates in the print
 def describe_route(route_response):
     print("Route Description:")
     for leg in route_response.get('Legs', []):
         for step in leg.get('Steps', []):
+            # Convert meters to feet (1 meter = 3.28084 feet)
+            distance_in_feet = step['Distance'] * 3.28084 * 1000
             # Format distance as a string with two decimal places
-            distance_text = "{:.2f} meters".format(step['Distance'] * 1000)  # Assuming distance is in kilometers
-            # The instruction is not provided in the response, so we use start and end positions
-            instruction = "From {} to {}".format(step['StartPosition'], step['EndPosition'])
+            distance_text = "{:.2f} feet".format(distance_in_feet)
+            # Swap latitude and longitude in the print statement
+            instruction = "From {} to {}".format(
+                (step['StartPosition'][1], step['StartPosition'][0]),  # Swap latitude and longitude
+                (step['EndPosition'][1], step['EndPosition'][0])          # Swap latitude and longitude
+            )
             print(distance_text + ": " + instruction)
 
-# Print the detailed route description
+# Print the detailed route description in feet with swapped coordinates in the print
 describe_route(route_response)
-

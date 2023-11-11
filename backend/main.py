@@ -13,6 +13,9 @@ import psycopg2
 #os reads from environment
 import os
 
+#import cors
+from flask_cors import CORS
+
 
 # #This is to encode the password (in the parameter) for the DB
 # urllib.parse.quote_plus("CVkBnjAuwYRIhV3De5hMFxas_HCuQPt_")
@@ -22,6 +25,7 @@ import os
 #(WSGI) Web Server Gateway Interface is a simple calling convention for web servers to forward requests to web applications or frameworks written in the Python
 # this creates an instance of flask __name__ is the current running module. 
 app = Flask(__name__)
+CORS(app)
 
 
 def get_db_connection():
@@ -32,7 +36,6 @@ def get_db_connection():
                             #user=os.environ['DB_USERNAME'],
                             #password=os.environ['DB_PASSWORD'])
     return conn
-
 
 @app.route('/')
 def index():

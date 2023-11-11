@@ -37,7 +37,6 @@ print("End Longitude:", end_longitude)
 # Function to return a JSON object with the specified format
 def describe_route(route_response):
     route_description = {"points": []}
-    point_index = 0  # Initialize the point index
     
     for leg in route_response.get('Legs', []):
         for step in leg.get('Steps', []):
@@ -60,8 +59,7 @@ def describe_route(route_response):
             }
             
             # Add the point to the array with the current index
-            route_description["points"].append((str(point_index), point))
-            point_index += 1  # Increment the point index
+            route_description["points"].append(point)
 
     return json.dumps(route_description, indent=2)
 

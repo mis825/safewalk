@@ -43,6 +43,8 @@ def get_db_connection():
                             password='vLqVpTJUo53bkUdnoHXr5VdV77nf2m3E')
                             #user=os.environ['DB_USERNAME'],
                             #password=os.environ['DB_PASSWORD'])
+
+    
     return conn
 
 @app.route('/')
@@ -77,7 +79,7 @@ def searchRoute():
         "end_longitude": end_longitude
     }
 
-    return jsonify(start_end_coordinates);
+    return jsonify(start_end_coordinates)
 
 # This is the maps logic ----------------------------------------------------------------------------
 

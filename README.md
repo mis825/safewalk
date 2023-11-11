@@ -9,3 +9,4 @@ An application to make your walk home safer.
 
 - Michael Singer
 - Colin Jacobs
+- Joseph Sanchez

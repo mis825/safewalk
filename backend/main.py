@@ -1,7 +1,7 @@
 # ST uses resource-based URIs and HTTP Methods to reduce the complexity of web calls to the API.
 
 #Flask is a lightweight Python web framework (for backend creation)
-from flask import Flask
+from flask import Flask, jsonify
 
 # from flask_restful import Api, Resource
 #Sqlalchemy is basically a bridge between Py and a SQL DB
@@ -39,7 +39,12 @@ def get_db_connection():
 
 @app.route('/')
 def index():
-    return "helloworld!"
+    
+    data = {
+        "message": "Hello word!"
+    }
+    
+    return jsonify(data)
 
 
 if __name__ == "__main__":

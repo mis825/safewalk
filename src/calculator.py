@@ -1,5 +1,5 @@
 import boto3
-
+import json
 # Initialize the AWS Location Service client
 client = boto3.client('location', region_name='us-east-2')
 
@@ -34,22 +34,37 @@ print("Start Longitude:", start_longitude)
 print("End Latitude:", end_latitude)
 print("End Longitude:", end_longitude)
 
-# Function to print a detailed description of the route in feet
-# Function to print a detailed description of the route in feet with swapped coordinates in the print
+# Function to return a JSON object with the specified format
 def describe_route(route_response):
-    print("Route Description:")
+    route_description = {"points": []}
+    point_index = 0  # Initialize the point index
+    
     for leg in route_response.get('Legs', []):
         for step in leg.get('Steps', []):
             # Convert meters to feet (1 meter = 3.28084 feet)
             distance_in_feet = step['Distance'] * 3.28084 * 1000
             # Format distance as a string with two decimal places
             distance_text = "{:.2f} feet".format(distance_in_feet)
-            # Swap latitude and longitude in the print statement
-            instruction = "From {} to {}".format(
-                (step['StartPosition'][1], step['StartPosition'][0]),  # Swap latitude and longitude
-                (step['EndPosition'][1], step['EndPosition'][0])          # Swap latitude and longitude
-            )
-            print(distance_text + ": " + instruction)
+            
+            # Extract coordinates
+            from_lat, from_lon = step['StartPosition'][1], step['StartPosition'][0]
+            to_lat, to_lon = step['EndPosition'][1], step['EndPosition'][0]
 
-# Print the detailed route description in feet with swapped coordinates in the print
-describe_route(route_response)
+            # Create a dictionary for the point
+            point = {
+                "distance": distance_text,
+                "from_lat": from_lat,
+                "from_lon": from_lon,
+                "to_lat": to_lat,
+                "to_lon": to_lon
+            }
+            
+            # Add the point to the array with the current index
+            route_description["points"].append((str(point_index), point))
+            point_index += 1  # Increment the point index
+
+    return json.dumps(route_description, indent=2)
+
+# Get the detailed route description in the specified JSON format
+detailed_route = describe_route(route_response)
+print(detailed_route)

@@ -77,7 +77,7 @@ def searchRoute():
         "end_longitude": end_longitude
     }
 
-    return jsonify(start_end_coordinates);
+    return jsonify(start_end_coordinates)
 
 # This is the maps logic ----------------------------------------------------------------------------
 

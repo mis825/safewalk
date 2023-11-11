@@ -1,7 +1,7 @@
 # ST uses resource-based URIs and HTTP Methods to reduce the complexity of web calls to the API.
 
 #Flask is a lightweight Python web framework (for backend creation)
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import boto3
 
 # from flask_restful import Api, Resource
@@ -28,6 +28,13 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+# Start boto3 client
+access_key = os.getenv('AWS_ACCESS_KEY_ID')
+secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+place_index = 'SafeWalk'  
+calculator_name = 'SafeWalk'
+
+client = boto3.client('location', region_name='us-east-2', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
 
 def get_db_connection():
     conn = psycopg2.connect(host='	suleiman.db.elephantsql.com',
@@ -41,26 +48,38 @@ def get_db_connection():
 @app.route('/')
 def index():
 
-    start_latitude, start_longitude = geocode_address(client, place_index, start_address)
+    # start_latitude, start_longitude = geocode_address(client, place_index, start_address)
 
-    data = {
-        "start_lattitude": start_latitude,
-        "start_longitude": start_longitude
-    }
+    # data = {
+    #     "start_lattitude": start_latitude,
+    #     "start_longitude": start_longitude
+    # }
     
-    return jsonify(data)
+    return jsonify({"message": "Welcome to SafeWalk!"})
 
-access_key = os.getenv('AWS_ACCESS_KEY_ID')
-secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+@app.route('/searchRoute', methods=['POST'])
+def searchRoute():
+    content = request.json
 
-client = boto3.client('location', region_name='us-east-2', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
+    if content is None:
+        return "Failed to search route", 400
 
-place_index = 'SafeWalk'  
-calculator_name = 'SafeWalk' 
+    current_location = content['current_location']
+    destination = content['destination']
 
-# Specify the start and end addresses
-start_address = '405 Selfridge StBethlehem, PA 18015'  
-end_address = '201 E Packer Ave, Bethlehem, PA 18015'  
+    start_latitude, start_longitude = geocode_address(client, place_index, current_location)
+    end_latitude, end_longitude = geocode_address(client, place_index, destination)
+
+    start_end_coordinates = {
+        "start_latitude": start_latitude,
+        "start_longitude": start_longitude,
+        "end_latitude": end_latitude,
+        "end_longitude": end_longitude
+    }
+
+    return jsonify(start_end_coordinates);
+
+# This is the maps logic ----------------------------------------------------------------------------
 
 # Function to geocode an address
 def geocode_address(client, place_index, address):
@@ -69,22 +88,7 @@ def geocode_address(client, place_index, address):
     latitude = result['Place']['Geometry']['Point'][1]
     longitude = result['Place']['Geometry']['Point'][0]
     return latitude, longitude
-
-# Geocode the start and end addresses
-# end_latitude, end_longitude = geocode_address(client, place_index, end_address)
-
-
-
-# Make the API call to calculate the route
-# route_response = client.calculate_route(
-#     CalculatorName=calculator_name,
-#     DeparturePosition=[start_longitude, start_latitude],
-#     DestinationPosition=[end_longitude, end_latitude],
-#     TravelMode='Walking'  
-# )
-
-# Print the response
-# print(route_response)
+# ------------------------------------------------------------------------------------------------
 
 if __name__ == "__main__":
     # this starts server and flask app.

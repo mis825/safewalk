@@ -8,3 +8,4 @@ An application to make your walk home safer.
 ## Collaborators
 
 - Michael Singer
+- Colin Jacobs

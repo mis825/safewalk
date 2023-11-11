@@ -38,6 +38,7 @@ def get_db_connection():
                             #password=os.environ['DB_PASSWORD'])
     return conn
 
+
 @app.route('/')
 def index():
     return jsonify({"message": "Welcome to SafeWalk!"})
@@ -55,6 +56,22 @@ def searchRoute():
     detailed_route = route_calculator.address_to_route(current_location, destination)
 
     return jsonify(json.loads(detailed_route))
+
+@app.route('/reportIncident', methods=['GET'])
+def create():
+    curr = get_db_connection().cursor()
+    i=40.7
+    j=-75.9
+    p=0.000006
+    r="hello"
+    curr.execute(
+        "prepare insert_incident as "
+        "INSERT INTO safewalk (latitude, longitude, points, reason)"
+         "VALUES ( $1 , $2, $3, $4)")
+    curr.execute("insert_incident (%f,%f,%d,%s)",(i,j,p,r))
+
+    return "complete"
+    
 
 # This is the maps logic ----------------------------------------------------------------------------
 

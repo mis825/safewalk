@@ -29,7 +29,7 @@ from flask_cors import CORS
 #(WSGI) Web Server Gateway Interface is a simple calling convention for web servers to forward requests to web applications or frameworks written in the Python
 # this creates an instance of flask __name__ is the current running module. 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins="*")
 
 def get_db_connection():
     conn = psycopg2.connect(host='suleiman.db.elephantsql.com',
@@ -56,6 +56,9 @@ def searchRoute():
 
     current_location = content['current_location']
     destination = content['destination']
+
+    print("current_location",current_location)
+    print("destination",destination)
 
     detailed_route = route_calculator.address_to_route(current_location, destination)
 

@@ -1,10 +1,11 @@
 'use client';
 
 import MapComponent from '../app/components/mapTemplate'
-
+import React, { useEffect, useState } from 'react';
 
 const backendUrl = "http://localhost:5000"
 export default function Home() {
+  const [points, setPoints] = useState([]);
   return (
     <div className="flex-col">
         <button id="reportButton" className="">Report Hazards</button>
@@ -15,7 +16,7 @@ export default function Home() {
 
        <button onClick={onSubmit} className=" bg-cyan-500 rounded-full px-3 text-white my-10"> Submit </button>
        <div className='items-right'></div>
-       <MapComponent />
+       {/* <MapComponent /> */}
     </div>
     
   )
@@ -43,13 +44,21 @@ function onSubmit(){
         }).then((response) => {
             // If we get an "ok" idea, clear the form
                 var res = response.json();
-              console.log('here is response:',res);
+              // console.log('here is response:',res);
             
             // Otherwise, handle server errors with a detailed popup idea
             return res
         }).then((data) => {
-            // this.update(data);
+            // HERE ARE THE POINTS
             console.log('here is data:', data);
+            const points = data;
+            let coords = []
+
+            // points.forEach((point, index) => {
+            //   const point1 = [point.from_lat, point.from_lon]
+            //   const point2 = [point.to_lat, point.to_lon]
+            // }
+            
         }).catch((error) => {
             console.warn('Something went wrong with GET.', error);
             console.log("Unspecified error with refresh()");

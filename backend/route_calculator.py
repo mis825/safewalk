@@ -12,14 +12,21 @@ secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
 api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
 gmaps = googlemaps.Client(key=api_key)
 
+print('acc key:', access_key)
+print('sec key:', secret_key)
+print('api key:', api_key)
+
 place_index = 'SafeWalk'  
 calculator_name = 'SafeWalk'
 
+print('hi!)')
 client = boto3.client('location', region_name='us-east-2', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
-
+print('bye!)')
 # Function to geocode an address
 def geocode_address(address):
+    print('hiiiiii')
     response = client.search_place_index_for_text(IndexName=place_index, Text=address)
+    print('cant catch me')
     result = response['Results'][0]
     latitude = result['Place']['Geometry']['Point'][1]
     longitude = result['Place']['Geometry']['Point'][0]

@@ -68,8 +68,8 @@ def address_to_route(current_location, destination):
 
 
 def calculate_all_routes(current_location, destination):
-    # Request directions
-    directions_result = gmaps.directions(current_location, destination, alternatives=True)
+    # Request walking directions
+    directions_result = gmaps.directions(current_location, destination, mode="walking", alternatives=True)
 
     routes_info = []
 
@@ -101,5 +101,4 @@ def calculate_all_routes(current_location, destination):
 
     # Convert to JSON
     json_output = json.dumps(response_data, indent=4)
-    print(json_output)
     return json_output

@@ -94,7 +94,7 @@ export default function Home() {
         className="block border-2 border-cyan-500"
       ></textarea>
       <textarea
-        defaultValue="417 Montclair Ave, Bethlehem, PA 18015"
+        defaultValue="30 Library Dr, Bethlehem, PA 18015"
         id="submissionDestination"
         placeholder="Enter destination"
         className="block border-2 border-cyan-500 my-1"

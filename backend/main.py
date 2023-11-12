@@ -4,6 +4,7 @@
 from flask import Flask, jsonify, request
 import json
 import route_calculator
+from geopy.geocoders import Nominatim
 
 
 # from flask_restful import Api, Resource
@@ -113,6 +114,56 @@ def create():
     conn.close()
 
     return "Incident reported!"
+
+
+# @app.route('/reportIncident', methods=['POST'])
+# def create():
+#     content=request.json
+#     if content is None:
+#         return "Failed to search route", 400
+#     conn = get_db_connection()
+#     curr = conn.cursor()
+#     current_location = content['current_location']
+#     geocoder = Nominatim()
+#     location = geocoder.geocode(current_location)
+#     points_map = {
+#     "Lights": 0.000001,
+#     "Sex offender": 0.000004,
+#     "Out of state criminal sex-offender": 0.000002
+#     }
+#     latitude = location.latitude
+#     longitude = location.longitude
+#     points = points_map(content['reason'])
+#     reason = content['reason']
+#     print('before commit!')
+#     # We may not allow user to write the reasoning due to safety concerns
+#     curr.execute(
+#         "prepare insert_incident as "
+#         "INSERT INTO safewalk (latitude, longitude, points, reason)"
+#          "VALUES ($1,$2,$3,$4)")
+#     curr.execute("execute insert_incident (%s,%s,%s,%s)", (
+#         latitude,
+#         longitude,
+#         points,
+#         reason
+#     ))
+#     conn.commit()
+#     curr.close()
+#     conn.close()
+#     return "Incident reported!"
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route('/getIncidents', methods=['GET'])
 def getIncidents():

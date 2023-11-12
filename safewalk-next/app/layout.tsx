@@ -21,7 +21,7 @@ export default function RootLayout({
       <script src='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.js'></script>
       <link href='https://unpkg.com/maplibre-gl@latest/dist/maplibre-gl.css' rel='stylesheet' />
      </head>
-      <body className={inter.className}>herhaidufhasidufh{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   )
 }

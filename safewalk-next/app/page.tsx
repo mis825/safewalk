@@ -83,7 +83,7 @@ export default function Home() {
       <button id="reportButton" className="">
         Report Hazards
       </button>
-      <h4 className="text-cyan-500 mb-4">Enter your location</h4>
+      {/* <h4 className="text-cyan-500 mb-4">Enter your location</h4>
       <textarea
         defaultValue="201 E Packer Ave, Bethlehem, PA 18015"
         id="submissionCurrent"
@@ -103,7 +103,7 @@ export default function Home() {
       >
         {" "}
         Submit{" "}
-      </button>
+      </button> */}
       <h1 className="text-9xl text-left mt-8 text-cyan-500">Safewalk</h1>
       <h3 className="text-cyan-500 mb-4">
         Keeping people safe, one trip at a time.

@@ -60,7 +60,7 @@ def searchRoute():
     print("current_location",current_location)
     print("destination",destination)
 
-    detailed_route = route_calculator.address_to_route(current_location, destination)
+    detailed_route = route_calculator.calculate_all_routes(current_location, destination)
 
     return jsonify(json.loads(detailed_route))
 

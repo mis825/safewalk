@@ -31,13 +31,16 @@ app = Flask(__name__)
 CORS(app)
 
 def get_db_connection():
-    conn = psycopg2.connect(host='	suleiman.db.elephantsql.com',
-                            database='ugcwoeym',
-                            user='ugcwoeym',
-                            password='vLqVpTJUo53bkUdnoHXr5VdV77nf2m3E')
+    conn = psycopg2.connect(host='suleiman.db.elephantsql.com',
+                            database='cbvybryt',
+                            user='cbvybryt',
+                            password='b_UODoVoWJ4Xzv-TGkfVB33BNsKa63C4')
                             #user=os.environ['DB_USERNAME'],
                             #password=os.environ['DB_PASSWORD'])
+
+    
     return conn
+
 
 @app.route('/')
 def index():
@@ -70,6 +73,38 @@ def calculateAllRoutes():
     all_routes = route_calculator.calculate_all_routes(current_location, destination)
 
     return jsonify(json.loads(all_routes))
+@app.route('/reportIncident', methods=['GET'])
+def create():
+    conn = get_db_connection()
+    curr = conn.cursor()
+
+    content = request.json
+
+    if content is None:
+        return "Failed to report incident", 400
+
+    latitude = content['latitude']
+    longitude = content['longitude']
+    points = content['points']
+    reason = content['reason']
+
+    # We may not allow user to write the reasoning due to safety concerns
+    curr.execute(
+        "prepare insert_incident as "
+        "INSERT INTO safewalk (latitude, longitude, points, reason)"
+         "VALUES ($1,$2,$3,$4)")
+    curr.execute("execute insert_incident (%s,%s,%s,%s)",(
+        latitude,
+        longitude,
+        points,
+        reason
+    ))
+    conn.commit()
+    curr.close()
+    conn.close()
+
+    return "complete"
+    
 
 # This is the maps logic ----------------------------------------------------------------------------
 

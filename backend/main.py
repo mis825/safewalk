@@ -19,6 +19,7 @@ import os
 #import cors
 from flask_cors import CORS
 
+from geopy.geocoders import Nominatim
 
 
 # #This is to encode the password (in the parameter) for the DB
@@ -78,7 +79,7 @@ def calculateAllRoutes():
 
     return jsonify(json.loads(all_routes))
 
-@app.route('/reportIncident', methods=['GET'])
+@app.route('/reportIncident', methods=['POST'])
 def create():
     content=request.json
     if content is None:
@@ -91,10 +92,21 @@ def create():
 
     if content is None:
         return "Failed to report incident", 400
+    
+    current_location = content['current_location']
+    
+    geocoder = Nominatim()
+    location = geocoder.geocode(current_location)
 
-    latitude = content['latitude']
-    longitude = content['longitude']
-    points = content['points']
+    points_map = {
+    "Lights": 0.000001,
+    "Sex offender": 0.000004,
+    "Out of state criminal sex-offender": 0.000002
+    }
+    
+    latitude = location.latitude
+    longitude = location.longitude
+    points = points_map(content['reason'])
     reason = content['reason']
 
     # We may not allow user to write the reasoning due to safety concerns

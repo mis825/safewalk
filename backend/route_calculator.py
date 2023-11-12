@@ -4,6 +4,7 @@ import os
 import heapq
 import random
 import googlemaps
+from main import getIncidents
 
 
 # Start boto3 client
@@ -79,14 +80,26 @@ def calculate_all_routes(current_location, destination):
     directions_result = gmaps.directions(current_location, destination, mode="walking", alternatives=True)
 
     routes_info = []
+    min_points = float('inf')  # Initialize with a very high number
+    best_route_index = None
+    incidents_response = getIncidents()
+    incidents_data = incidents_response.get_json()  # Extract JSON data from the response
 
-    # Process each route
+    # First loop to find the route with the least points
+    for index, route in enumerate(directions_result):
+        points = calculate_points_for_route(route,incidents_data)  
+        if points < min_points:
+            min_points = points
+            best_route_index = index
+
+    # Second loop to process routes and set 'is_best'
     for index, route in enumerate(directions_result):
         route_info = {
             "index": index,
             "summary": route["summary"],
             "distance": route["legs"][0]["distance"]["text"],
             "duration": route["legs"][0]["duration"]["text"],
+            "is_best": index == best_route_index,  # Set 'is_best' only for the best route
             "steps": [{
                 "instruction": step["html_instructions"],
                 "distance": step["distance"]["text"],
@@ -103,9 +116,39 @@ def calculate_all_routes(current_location, destination):
         }
         routes_info.append(route_info)
 
-    # Create a dictionary to wrap the list of routes
-    response_data = {"routes": routes_info}
+    # Create dictionary for routes
+    routes_data = {"routes": routes_info}
 
     # Convert to JSON
-    json_output = json.dumps(response_data, indent=4)
-    return json_output
+    routes_json_output = json.dumps(routes_data, indent=4)
+    print(routes_info)
+
+    return routes_json_output
+
+def calculate_points_for_route(route,incidents_data):
+    # Call getIncidents to retrieve incident data
+    
+
+    points = 0
+
+    for step in route["legs"][0]["steps"]:
+        start_location = step["start_location"]
+        end_location = step["end_location"]
+
+        for incident in incidents_data['incidents']:
+            incident_location = (incident['latitude'], incident['longitude'])
+
+            # Check if the incident is close to the start or end location of the step
+            if is_close(start_location, incident_location) or is_close(end_location, incident_location):
+                points += incident['points']  
+
+    return points
+
+def is_close(location, incident_location):
+    """
+    Check if the location is within 0.001 degrees of latitude and longitude
+    from the incident location.
+    """
+    lat_close = abs(location['lat'] - incident_location[0]) <= 0.001
+    lng_close = abs(location['lng'] - incident_location[1]) <= 0.001
+    return lat_close and lng_close

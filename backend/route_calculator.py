@@ -1,10 +1,17 @@
 import boto3
 import json
 import os
+import heapq
+import random
+import googlemaps
+
 
 # Start boto3 client
 access_key = os.getenv('AWS_ACCESS_KEY_ID')
 secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
+gmaps = googlemaps.Client(key=api_key)
+
 place_index = 'SafeWalk'  
 calculator_name = 'SafeWalk'
 
@@ -58,3 +65,41 @@ def address_to_route(current_location, destination):
     )
 
     return describe_route(route_response)
+
+
+def calculate_all_routes(current_location, destination):
+    # Request directions
+    directions_result = gmaps.directions(current_location, destination, alternatives=True)
+
+    routes_info = []
+
+    # Process each route
+    for index, route in enumerate(directions_result):
+        route_info = {
+            "index": index,
+            "summary": route["summary"],
+            "distance": route["legs"][0]["distance"]["text"],
+            "duration": route["legs"][0]["duration"]["text"],
+            "steps": [{
+                "instruction": step["html_instructions"],
+                "distance": step["distance"]["text"],
+                "duration": step["duration"]["text"],
+                "start_location": {
+                    "lat": step["start_location"]["lat"],
+                    "lng": step["start_location"]["lng"]
+                },
+                "end_location": {
+                    "lat": step["end_location"]["lat"],
+                    "lng": step["end_location"]["lng"]
+                }
+            } for step in route["legs"][0]["steps"]]
+        }
+        routes_info.append(route_info)
+
+    # Create a dictionary to wrap the list of routes
+    response_data = {"routes": routes_info}
+
+    # Convert to JSON
+    json_output = json.dumps(response_data, indent=4)
+    print(json_output)
+    return json_output

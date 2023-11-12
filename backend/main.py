@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request
 import json
 import route_calculator
 
+
 # from flask_restful import Api, Resource
 #Sqlalchemy is basically a bridge between Py and a SQL DB
 #flask-sqlalchemy is an extension for flask that adds sqlalchemy to flas app
@@ -17,6 +18,7 @@ import os
 
 #import cors
 from flask_cors import CORS
+
 
 
 # #This is to encode the password (in the parameter) for the DB
@@ -59,7 +61,21 @@ def searchRoute():
 
     return jsonify(json.loads(detailed_route))
 
-@app.route('/reportIncident', methods=['POST'])
+@app.route('/calculateAllRoutes', methods=['POST'])
+def calculateAllRoutes():
+    content = request.json
+
+    if content is None:
+        return "Failed to calculate all routes", 400
+
+    current_location = content['current_location']
+    destination = content['destination']
+
+    all_routes = route_calculator.calculate_all_routes(current_location, destination)
+
+    return jsonify(json.loads(all_routes))
+
+@app.route('/reportIncident', methods=['GET'])
 def create():
     content=request.json
     if content is None:
@@ -67,15 +83,28 @@ def create():
     
     conn = get_db_connection()
     curr = conn.cursor()
-    i=40.7
-    j=-75.9
-    p=0.000006
-    r="hello"
+
+    content = request.json
+
+    if content is None:
+        return "Failed to report incident", 400
+
+    latitude = content['latitude']
+    longitude = content['longitude']
+    points = content['points']
+    reason = content['reason']
+
+    # We may not allow user to write the reasoning due to safety concerns
     curr.execute(
         "prepare insert_incident as "
         "INSERT INTO safewalk (latitude, longitude, points, reason)"
          "VALUES ($1,$2,$3,$4)")
-    curr.execute("execute insert_incident (%s,%s,%s,%s)",(i,j,p,r))
+    curr.execute("execute insert_incident (%s,%s,%s,%s)",(
+        latitude,
+        longitude,
+        points,
+        reason
+    ))
     conn.commit()
     curr.close()
     conn.close()

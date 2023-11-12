@@ -59,7 +59,7 @@ def searchRoute():
 
     return jsonify(json.loads(detailed_route))
 
-@app.route('/reportIncident', methods=['GET'])
+@app.route('/reportIncident', methods=['POST'])
 def create():
     conn = get_db_connection()
     curr = conn.cursor()
@@ -79,7 +79,7 @@ def create():
         "prepare insert_incident as "
         "INSERT INTO safewalk (latitude, longitude, points, reason)"
          "VALUES ($1,$2,$3,$4)")
-    curr.execute("execute insert_incident (%s,%s,%s,%s)",(
+    curr.execute("execute insert_incident (%s,%s,%s,%s)", (
         latitude,
         longitude,
         points,
@@ -89,7 +89,7 @@ def create():
     curr.close()
     conn.close()
 
-    return "complete"
+    return "Incident reported!"
     
 
 # This is the maps logic ----------------------------------------------------------------------------

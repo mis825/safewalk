@@ -118,12 +118,13 @@ def calculate_all_routes(current_location, destination):
 
     # Convert to JSON
     routes_json_output = json.dumps(routes_data, indent=4)
+    print(route_info)
 
     return routes_json_output
 
 def calculate_points_for_route(route, incidents_data):
     points = 0
-    proximity_threshold = 0.001  # Define a threshold for proximity
+    proximity_threshold = 0.0005  # Define a threshold for proximity
 
     for step in route["legs"][0]["steps"]:
         # Calculate the bounding box for the step with a proximity buffer

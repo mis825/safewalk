@@ -63,15 +63,28 @@ def searchRoute():
 def create():
     conn = get_db_connection()
     curr = conn.cursor()
-    i=40.7
-    j=-75.9
-    p=0.000006
-    r="hello"
+
+    content = request.json
+
+    if content is None:
+        return "Failed to report incident", 400
+
+    latitude = content['latitude']
+    longitude = content['longitude']
+    points = content['points']
+    reason = content['reason']
+
+    # We may not allow user to write the reasoning due to safety concerns
     curr.execute(
         "prepare insert_incident as "
         "INSERT INTO safewalk (latitude, longitude, points, reason)"
          "VALUES ($1,$2,$3,$4)")
-    curr.execute("execute insert_incident (%s,%s,%s,%s)",(i,j,p,r))
+    curr.execute("execute insert_incident (%s,%s,%s,%s)",(
+        latitude,
+        longitude,
+        points,
+        reason
+    ))
     conn.commit()
     curr.close()
     conn.close()

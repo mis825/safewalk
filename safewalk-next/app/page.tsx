@@ -38,14 +38,14 @@ export default function Home() {
           return res;
         })
         .then((data) => {
-          // HERE ARE THE POINTS
-          // console.log("here is data:", data);
-          console.log(data.routes);
-          // for(let i = 0; i < data.routes.length; i < 0) {
-
-          // }
+          let bestRoute;
+          for(let i = 0; i < data.routes.length; i++) {
+            if(data.routes[i].is_best == true) {
+              bestRoute = data.routes[i]
+            }
+          }
           
-          const points = data.routes[0].steps;
+          const points = bestRoute.steps;
           let coords: any[] = [];
 
           points.forEach(
@@ -88,13 +88,13 @@ export default function Home() {
         Keeping people safe, one trip at a time.
       </h3>
       <textarea
-        defaultValue="201 E Packer Ave, Bethlehem, PA 18015"
+        defaultValue="641 Taylor St, Bethlehem, PA 18015"
         id="submissionCurrent"
         placeholder="Enter current location"
         className="block border-2 border-cyan-500"
       ></textarea>
       <textarea
-        defaultValue="27 Memorial Dr W, Bethlehem, PA 18015"
+        defaultValue="417 Montclair Ave, Bethlehem, PA 18015"
         id="submissionDestination"
         placeholder="Enter destination"
         className="block border-2 border-cyan-500 my-1"

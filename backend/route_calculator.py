@@ -13,21 +13,14 @@ secret_key = os.getenv('AWS_SECRET_ACCESS_KEY')
 api_key = os.environ.get('GOOGLE_MAPS_API_KEY')
 gmaps = googlemaps.Client(key=api_key)
 
-print('acc key:', access_key)
-print('sec key:', secret_key)
-print('api key:', api_key)
-
 place_index = 'SafeWalk'  
 calculator_name = 'SafeWalk'
 
-print('hi!)')
 client = boto3.client('location', region_name='us-east-2', aws_access_key_id=access_key, aws_secret_access_key=secret_key)
-print('bye!)')
+
 # Function to geocode an address
 def geocode_address(address):
-    print('hiiiiii')
     response = client.search_place_index_for_text(IndexName=place_index, Text=address)
-    print('cant catch me')
     result = response['Results'][0]
     latitude = result['Place']['Geometry']['Point'][1]
     longitude = result['Place']['Geometry']['Point'][0]
@@ -85,9 +78,12 @@ def calculate_all_routes(current_location, destination):
     incidents_response = getIncidents()
     incidents_data = incidents_response.get_json()  # Extract JSON data from the response
 
-    # First loop to find the route with the least points
+    # First loop to find the route with the least points and calculate points for each route
+    route_points = []
     for index, route in enumerate(directions_result):
-        points = calculate_points_for_route(route,incidents_data)  
+        points = calculate_points_for_route(route, incidents_data)
+        route_points.append(points)  # Store points for each route
+
         if points < min_points:
             min_points = points
             best_route_index = index
@@ -100,6 +96,7 @@ def calculate_all_routes(current_location, destination):
             "distance": route["legs"][0]["distance"]["text"],
             "duration": route["legs"][0]["duration"]["text"],
             "is_best": index == best_route_index,  # Set 'is_best' only for the best route
+            "total_points": route_points[index],  # Include total points for the route
             "steps": [{
                 "instruction": step["html_instructions"],
                 "distance": step["distance"]["text"],
@@ -121,27 +118,28 @@ def calculate_all_routes(current_location, destination):
 
     # Convert to JSON
     routes_json_output = json.dumps(routes_data, indent=4)
-    print(routes_info)
 
     return routes_json_output
 
-def calculate_points_for_route(route,incidents_data):
-    # Call getIncidents to retrieve incident data
-    
-
+def calculate_points_for_route(route, incidents_data):
     points = 0
+    proximity_threshold = 0.001  # Define a threshold for proximity
 
     for step in route["legs"][0]["steps"]:
-        start_location = step["start_location"]
-        end_location = step["end_location"]
+        # Calculate the bounding box for the step with a proximity buffer
+        min_lat = min(step["start_location"]["lat"], step["end_location"]["lat"]) - proximity_threshold
+        max_lat = max(step["start_location"]["lat"], step["end_location"]["lat"]) + proximity_threshold
+        min_lng = min(step["start_location"]["lng"], step["end_location"]["lng"]) - proximity_threshold
+        max_lng = max(step["start_location"]["lng"], step["end_location"]["lng"]) + proximity_threshold
 
         for incident in incidents_data['incidents']:
-            incident_location = (incident['latitude'], incident['longitude'])
+            incident_lat = incident['latitude']
+            incident_lng = incident['longitude']
 
-            # Check if the incident is close to the start or end location of the step
-            if is_close(start_location, incident_location) or is_close(end_location, incident_location):
-                points += incident['points']  
-
+            # Check if the incident is within or close to the bounding box
+            if min_lat <= incident_lat <= max_lat and min_lng <= incident_lng <= max_lng:
+                points += incident['points'] * 10000
+                print(incident_lat,incident_lng)
     return points
 
 def is_close(location, incident_location):
@@ -149,6 +147,6 @@ def is_close(location, incident_location):
     Check if the location is within 0.001 degrees of latitude and longitude
     from the incident location.
     """
-    lat_close = abs(location['lat'] - incident_location[0]) <= 0.001
-    lng_close = abs(location['lng'] - incident_location[1]) <= 0.001
+    lat_close = abs(location['lat'] - incident_location[0]) <= 0.0004
+    lng_close = abs(location['lng'] - incident_location[1]) <= 0.00004
     return lat_close and lng_close

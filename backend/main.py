@@ -110,7 +110,33 @@ def create():
     conn.close()
 
     return "Incident reported!"
-    
+
+@app.route('/getIncidents', methods=['GET'])
+def getIncidents():
+    conn = get_db_connection()
+    curr = conn.cursor()
+
+    # We may not allow user to write the reasoning due to safety concerns
+    curr.execute(
+        "SELECT * FROM safewalk"
+    )
+
+    rows = curr.fetchall()
+
+    incidents = []
+    for row in rows:
+        incident = { # latitude, longitude, points, reason
+            'latitude': row[0],
+            'longitude': row[1],
+            'points': row[2],
+            'reason': row[3]
+        }
+        incidents.append(incident)
+
+    curr.close()
+    conn.close()
+
+    return jsonify({'incidents': incidents})
 
 # This is the maps logic ----------------------------------------------------------------------------
 

@@ -19,6 +19,7 @@ import os
 from flask_cors import CORS
 
 
+
 # #This is to encode the password (in the parameter) for the DB
 # urllib.parse.quote_plus("CVkBnjAuwYRIhV3De5hMFxas_HCuQPt_")
 
@@ -55,6 +56,20 @@ def searchRoute():
     detailed_route = route_calculator.address_to_route(current_location, destination)
 
     return jsonify(json.loads(detailed_route))
+
+@app.route('/calculateAllRoutes', methods=['POST'])
+def calculateAllRoutes():
+    content = request.json
+
+    if content is None:
+        return "Failed to calculate all routes", 400
+
+    current_location = content['current_location']
+    destination = content['destination']
+
+    all_routes = route_calculator.calculate_all_routes(current_location, destination)
+
+    return jsonify(json.loads(all_routes))
 
 # This is the maps logic ----------------------------------------------------------------------------
 

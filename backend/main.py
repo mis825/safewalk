@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request
 import json
 import route_calculator
 
+
 # from flask_restful import Api, Resource
 #Sqlalchemy is basically a bridge between Py and a SQL DB
 #flask-sqlalchemy is an extension for flask that adds sqlalchemy to flas app
@@ -19,6 +20,7 @@ import os
 from flask_cors import CORS
 
 from geopy.geocoders import Nominatim
+
 
 # #This is to encode the password (in the parameter) for the DB
 # urllib.parse.quote_plus("CVkBnjAuwYRIhV3De5hMFxas_HCuQPt_")
@@ -60,8 +62,26 @@ def searchRoute():
 
     return jsonify(json.loads(detailed_route))
 
+@app.route('/calculateAllRoutes', methods=['POST'])
+def calculateAllRoutes():
+    content = request.json
+
+    if content is None:
+        return "Failed to calculate all routes", 400
+
+    current_location = content['current_location']
+    destination = content['destination']
+
+    all_routes = route_calculator.calculate_all_routes(current_location, destination)
+
+    return jsonify(json.loads(all_routes))
+
 @app.route('/reportIncident', methods=['POST'])
 def create():
+    content=request.json
+    if content is None:
+        return "Failed to search route", 400
+    
     conn = get_db_connection()
     curr = conn.cursor()
 
@@ -91,7 +111,7 @@ def create():
         "prepare insert_incident as "
         "INSERT INTO safewalk (latitude, longitude, points, reason)"
          "VALUES ($1,$2,$3,$4)")
-    curr.execute("execute insert_incident (%s,%s,%s,%s)",(
+    curr.execute("execute insert_incident (%s,%s,%s,%s)", (
         latitude,
         longitude,
         points,
@@ -101,8 +121,34 @@ def create():
     curr.close()
     conn.close()
 
-    return "complete"
-    
+    return "Incident reported!"
+
+@app.route('/getIncidents', methods=['GET'])
+def getIncidents():
+    conn = get_db_connection()
+    curr = conn.cursor()
+
+    # We may not allow user to write the reasoning due to safety concerns
+    curr.execute(
+        "SELECT * FROM safewalk"
+    )
+
+    rows = curr.fetchall()
+
+    incidents = []
+    for row in rows:
+        incident = { # latitude, longitude, points, reason
+            'latitude': row[0],
+            'longitude': row[1],
+            'points': row[2],
+            'reason': row[3]
+        }
+        incidents.append(incident)
+
+    curr.close()
+    conn.close()
+
+    return jsonify({'incidents': incidents})
 
 # This is the maps logic ----------------------------------------------------------------------------
 

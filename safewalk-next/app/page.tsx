@@ -1,5 +1,5 @@
 'use client';
-
+import MapComponent from '../app/components/mapTemplate'
 const backendUrl = "http://localhost:5000"
 export default function Home() {
   return (
@@ -10,12 +10,15 @@ export default function Home() {
         <h4 className="text-cyan-500 mb-4">Enter your reason</h4>
         <textarea defaultValue="Lights" id="submissionReason" placeholder="Enter reason" className="block border-2 border-cyan-500 my-1"></textarea>
         <button onClick={onSubmitHazard} className=" bg-cyan-500 rounded-full px-3 text-white my-10"> Submit </button>
-      <h1 className='text-9xl text-left mt-8 text-cyan-500'>Safewalk</h1>
-      <h3 className="text-cyan-500 mb-4">Keeping people safe, one trip at a time.</h3>
+        <h1 className='text-9xl text-left mt-8 text-cyan-500'>Safewalk</h1>
+        <h3 className="text-cyan-500 mb-4">Keeping people safe, one trip at a time.</h3>
         <textarea defaultValue="201 E Packer Ave, Bethlehem, PA 18015" id="submissionCurrent" placeholder="Enter current location" className="block border-2 border-cyan-500"></textarea>
         <textarea defaultValue="27 Memorial Dr W, Bethlehem, PA 18015" id="submissionDestination" placeholder="Enter destination" className="block border-2 border-cyan-500 my-1"></textarea>
        <button onClick={onSubmit} className=" bg-cyan-500 rounded-full px-3 text-white my-10"> Submit </button>
+       <div className='items-right'></div>
+       <MapComponent />
     </div>
+    
   )
 }
 

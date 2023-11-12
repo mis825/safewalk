@@ -74,8 +74,9 @@ def calculate_all_routes(current_location, destination):
     routes_info = []
 
     # Process each route
-    for route in directions_result:
+    for index, route in enumerate(directions_result):
         route_info = {
+            "index": index,
             "summary": route["summary"],
             "distance": route["legs"][0]["distance"]["text"],
             "duration": route["legs"][0]["duration"]["text"],
@@ -95,8 +96,10 @@ def calculate_all_routes(current_location, destination):
         }
         routes_info.append(route_info)
 
-     # Convert to JSON (optional)
-    json_output = json.dumps(routes_info, indent=4)
+    # Create a dictionary to wrap the list of routes
+    response_data = {"routes": routes_info}
+
+    # Convert to JSON
+    json_output = json.dumps(response_data, indent=4)
     print(json_output)
     return json_output
-

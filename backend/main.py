@@ -5,6 +5,7 @@ from flask import Flask, jsonify, request
 import json
 import route_calculator
 
+
 # from flask_restful import Api, Resource
 #Sqlalchemy is basically a bridge between Py and a SQL DB
 #flask-sqlalchemy is an extension for flask that adds sqlalchemy to flas app
@@ -73,8 +74,13 @@ def calculateAllRoutes():
     all_routes = route_calculator.calculate_all_routes(current_location, destination)
 
     return jsonify(json.loads(all_routes))
+
 @app.route('/reportIncident', methods=['GET'])
 def create():
+    content=request.json
+    if content is None:
+        return "Failed to search route", 400
+    
     conn = get_db_connection()
     curr = conn.cursor()
 

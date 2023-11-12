@@ -59,8 +59,12 @@ def searchRoute():
 
     return jsonify(json.loads(detailed_route))
 
-@app.route('/reportIncident', methods=['GET'])
+@app.route('/reportIncident', methods=['POST'])
 def create():
+    content=request.json
+    if content is None:
+        return "Failed to search route", 400
+    
     conn = get_db_connection()
     curr = conn.cursor()
     i=40.7

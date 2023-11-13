@@ -1,0 +1,9 @@
+Flask==1.1.2
+Jinja2==2.11.2
+MarkupSafe==1.1.1
+psycopg2-binary>=2.9.9
+Flask-Cors>=3.0
+boto3==1.28.84
+itsdangerous==2.0.1
+werkzeug==2.0.3
+googlemaps==4.10.0
